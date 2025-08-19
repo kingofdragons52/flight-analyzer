@@ -39,6 +39,14 @@
       "departure_time": "7:00",
       "arrival_time": "14:05",
       "price": 21000
+    },
+    {
+      "origin": "VVO",
+      "destination": "TLV",
+      "carrier": "SU",
+      "departure_time": "08:30",
+      "arrival_time": "16:00",
+      "price": 75000
     }
   ]
 }
