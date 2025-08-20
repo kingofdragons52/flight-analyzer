@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,9 +41,8 @@ public class Main {
                 return;
             }
 
-            calculateMinFlightTime(filteredTickets);  // расчет минимального времени
-
-            calculatePriceDifference(filteredTickets);  // расчет разницы между средней и медианной ценами
+            calculateMinFlightTime(filteredTickets);
+            calculatePriceDifference(filteredTickets);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,16 +51,16 @@ public class Main {
 
     private static void calculateMinFlightTime(List<Ticket> tickets) {
         Map<String, Duration> minFlightTimes = new HashMap<>();
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy H:mm");
 
         for (Ticket ticket : tickets) {
-            LocalTime departureTime = LocalTime.parse(ticket.getDeparture_time(), timeFormatter);
-            LocalTime arrivalTime = LocalTime.parse(ticket.getArrival_time(), timeFormatter);
-            Duration duration = Duration.between(departureTime, arrivalTime);
+            String departureString = ticket.getDeparture_date() + " " + ticket.getDeparture_time();
+            String arrivalString = ticket.getArrival_date() + " " + ticket.getArrival_time();
 
-            if (duration.isNegative()) {
-                duration = duration.plusDays(1);
-            }
+            LocalDateTime departureDateTime = LocalDateTime.parse(departureString, formatter);
+            LocalDateTime arrivalDateTime = LocalDateTime.parse(arrivalString, formatter);
+
+            Duration duration = Duration.between(departureDateTime, arrivalDateTime);
 
             minFlightTimes.merge(ticket.getCarrier(), duration, (d1, d2) -> d1.compareTo(d2) < 0 ? d1 : d2);
         }
@@ -78,7 +77,7 @@ public class Main {
         List<Double> prices = tickets.stream().map(Ticket::getPrice).collect(Collectors.toList());
         Collections.sort(prices);
 
-        double averagePrice = prices.stream().mapToDouble(Double::doubleValue).average().orElse(0.0); // расчет средней цены
+        double averagePrice = prices.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
 
         double medianPrice;
         int size = prices.size();
